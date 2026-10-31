@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
-import { contact, content, marquee, type Lang } from './content'
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
+import { contact, content, marquee, type Lang, type Project } from './content'
+import Starfield from './Starfield'
 import { Icon } from './icons'
 
 const STORAGE_KEY = 'lang'
@@ -39,6 +40,61 @@ function Photo({ alt }: { alt: string }) {
       </div>
     )
   return <img className="photo" src="/foto.jpg" alt={alt} width={600} height={600} fetchPriority="high" onError={() => setFailed(true)} />
+}
+
+// Proyecto destacado: texto + «sistema orbital» con las partes del proyecto alrededor del núcleo
+function Featured({ p, builtWith, visit, newTab, lang }: { p: Project; builtWith: string; visit: string; newTab: string; lang: Lang }) {
+  const modules = p.modules ?? []
+  return (
+    <Card className="featured">
+      <div className="featured__text">
+        <p className="project__kicker">
+          <span className="featured__index">01</span> {p.kicker}
+        </p>
+        <h3 className="featured__title">{p.title}</h3>
+        <p className="featured__desc">{p.description}</p>
+        {modules.length > 0 && (
+          <>
+            <p className="featured__label">{builtWith}</p>
+            <ul className="modules">
+              {modules.map((m) => (
+                <li key={m.name}>
+                  <span className="modules__name">{m.name}</span>
+                  <span className="modules__detail">{m.detail}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        <ul className="tags" aria-label={lang === 'es' ? 'Tecnologías' : 'Tech stack'}>
+          {p.tags.map((tag) => (
+            <li key={tag}>{tag}</li>
+          ))}
+        </ul>
+        {p.link && (
+          <a className="btn btn--primary featured__cta" href={p.link.href} target="_blank" rel="noopener noreferrer">
+            {visit} {p.link.label}
+            <Icon name="external" />
+            <span className="sr-only">{newTab}</span>
+          </a>
+        )}
+      </div>
+      <div className="orbit" aria-hidden="true">
+        <div className="orbit__ring orbit__ring--outer" />
+        <div className="orbit__ring orbit__ring--inner" />
+        <div className="orbit__core">
+          <span>{p.title}</span>
+        </div>
+        <div className="orbit__spin">
+          {modules.map((m, i) => (
+            <div key={m.name} className="orbit__node" style={{ '--a': `${(360 / modules.length) * i}deg` } as CSSProperties}>
+              <span className="orbit__planet">{m.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Card>
+  )
 }
 
 function SectionHead({ id, index, title, intro }: { id: string; index: string; title: string; intro?: string }) {
@@ -167,6 +223,7 @@ export default function App() {
         <span className="blob blob--1" />
         <span className="blob blob--2" />
         <span className="blob blob--3" />
+        <Starfield />
         <span className="grid" />
         <span className="grain" />
       </div>
@@ -330,29 +387,34 @@ export default function App() {
         <section className="section" id="s-proyectos" aria-labelledby="proyectos">
           <div className="container reveal">
             <SectionHead id="proyectos" index="03" title={t.projects.title} intro={t.projects.intro} />
-            <div className="projects">
-              {t.projects.items.map((p, i) => (
-                <Card key={p.title} className="project">
-                  <p className="project__index" aria-hidden="true">
-                    {String(i + 1).padStart(2, '0')}
-                  </p>
-                  {p.kicker && <p className="project__kicker">{p.kicker}</p>}
-                  <h3>{p.title}</h3>
-                  <p className="project__desc">{p.description}</p>
-                  <ul className="tags" aria-label={lang === 'es' ? 'Tecnologías' : 'Tech stack'}>
-                    {p.tags.map((tag) => (
-                      <li key={tag}>{tag}</li>
-                    ))}
-                  </ul>
-                  {p.link && (
-                    <a className="project__link" href={p.link.href} target="_blank" rel="noopener noreferrer">
-                      {p.link.label}
-                      <Icon name="external" />
-                      <span className="sr-only">{newTab}</span>
-                    </a>
-                  )}
-                </Card>
+            {t.projects.items
+              .filter((p) => p.featured)
+              .map((p) => (
+                <Featured key={p.title} p={p} builtWith={t.projects.builtWith} visit={t.projects.visit} newTab={newTab} lang={lang} />
               ))}
+            <div className="projects">
+              {t.projects.items
+                .filter((p) => !p.featured)
+                .map((p, i) => (
+                  <Card key={p.title} className="project">
+                    <div className="project__top">
+                      <span className="project__icon" aria-hidden="true">
+                        <Icon name={p.icon ?? 'cloud'} />
+                      </span>
+                      <span className="project__index" aria-hidden="true">
+                        {String(i + 2).padStart(2, '0')}
+                      </span>
+                    </div>
+                    {p.kicker && <p className="project__kicker">{p.kicker}</p>}
+                    <h3>{p.title}</h3>
+                    <p className="project__desc">{p.description}</p>
+                    <ul className="tags" aria-label={lang === 'es' ? 'Tecnologías' : 'Tech stack'}>
+                      {p.tags.map((tag) => (
+                        <li key={tag}>{tag}</li>
+                      ))}
+                    </ul>
+                  </Card>
+                ))}
             </div>
           </div>
         </section>

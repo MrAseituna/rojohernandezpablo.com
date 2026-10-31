@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-type IconName = 'globe' | 'pin' | 'arrow-down' | 'arrow-up' | 'arrow-right' | 'external' | 'lock' | 'mail' | 'linkedin' | 'cap' | 'copy' | 'check' | 'briefcase'
+export type IconName = 'globe' | 'pin' | 'arrow-down' | 'arrow-up' | 'arrow-right' | 'external' | 'lock' | 'mail' | 'linkedin' | 'cap' | 'copy' | 'check' | 'briefcase' | 'cloud' | 'send' | 'puzzle'
 
 const paths: Record<IconName, ReactNode> = {
   globe: (
@@ -25,6 +25,11 @@ const paths: Record<IconName, ReactNode> = {
     </>
   ),
   check: <path d="m5 12 5 5 9-10" />,
+  cloud: <path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 9.5a4.25 4.25 0 0 1-.5 8.5H7Z" />,
+  send: <path d="M21 3 10 14M21 3l-7 18-4-7-7-4 18-7Z" />,
+  puzzle: (
+    <path d="M9 4a2 2 0 1 1 4 0v1h4a1 1 0 0 1 1 1v4h-1a2 2 0 1 0 0 4h1v4a1 1 0 0 1-1 1h-4v-1a2 2 0 1 0-4 0v1H5a1 1 0 0 1-1-1v-4h1a2 2 0 1 0 0-4H4V6a1 1 0 0 1 1-1h4V4Z" />
+  ),
   briefcase: (
     <>
       <rect x="3" y="7" width="18" height="13" rx="2" />

@@ -22,6 +22,12 @@ const skillsShared = {
 export const marquee = ['Angular', 'React', 'Django', 'Spring Boot', 'TypeScript', 'Node.js', 'Next.js', 'PHP', 'PostgreSQL', 'Python', 'Java', 'Git']
 
 export interface Project {
+  /** Se muestra a todo el ancho, con sus partes y la ilustración orbital */
+  featured?: boolean
+  /** Icono de la tarjeta (proyectos no destacados) */
+  icon?: 'cloud' | 'send' | 'puzzle'
+  /** Partes del proyecto en las que he trabajado (proyecto destacado) */
+  modules?: { name: string; detail: string }[]
   title: string
   /** Contexto pequeño sobre el título (p. ej. «Grupo ASESSORA») */
   kicker?: string
@@ -55,7 +61,7 @@ export interface Content {
     current: string
     items: { role: string; company: string; period: string; bullets: string[]; current?: boolean }[]
   }
-  projects: { title: string; intro: string; items: Project[] }
+  projects: { title: string; intro: string; visit: string; builtWith: string; items: Project[] }
   skills: { title: string; intro: string; groups: { name: string; items: string[] }[] }
   education: {
     title: string
@@ -147,28 +153,41 @@ export const content: Record<Lang, Content> = {
     projects: {
       title: 'Proyectos',
       intro: 'Una selección de lo que he construido.',
+      visit: 'Visitar',
+      builtWith: 'En qué he trabajado',
       items: [
         {
-          kicker: 'Proyecto en equipo',
+          featured: true,
+          kicker: 'Proyecto destacado · en equipo',
           title: 'TopClubs',
+          modules: [
+            { name: 'API REST', detail: 'NestJS · MySQL' },
+            { name: 'Panel de administración', detail: 'Angular' },
+            { name: 'Panel de gestión', detail: 'Angular' },
+            { name: 'App Android', detail: 'Kotlin' },
+            { name: 'Web', detail: 'Angular SSR' },
+          ],
           description:
             'Plataforma para reservar campos de fútbol, crear partidos abiertos y organizar equipos (fútbol 7, fútbol 11 y futsal). Participo en la API REST, los paneles de administración y gestión, la app Android y la web.',
           tags: ['NestJS', 'TypeScript', 'Angular', 'Kotlin', 'MySQL'],
           link: { href: 'https://topclubs.es', label: 'topclubs.es' },
         },
         {
+          icon: 'cloud',
           title: 'Gestión de Contenidos en la Nube',
           description:
             'Aplicación web para gestionar y almacenar contenidos en la nube, con una interfaz intuitiva y control de permisos según el tipo de usuario.',
           tags: ['Angular', 'Node.js'],
         },
         {
+          icon: 'send',
           title: 'Aplicación de Envío de Correos',
           description: 'Plataforma para redactar, almacenar y enviar correos de forma masiva, con autenticación y registro de envíos.',
           tags: ['Django', 'Python'],
         },
         {
           kicker: 'Grupo ASESSORA',
+          icon: 'puzzle',
           title: 'Plugins para Moodle',
           description:
             'Desarrollo y mantenimiento de plugins personalizados para Moodle, adaptados a la gestión educativa y la formación online.',
@@ -281,27 +300,40 @@ export const content: Record<Lang, Content> = {
     projects: {
       title: 'Projects',
       intro: "A selection of things I've built.",
+      visit: 'Visit',
+      builtWith: 'What I worked on',
       items: [
         {
-          kicker: 'Team project',
+          featured: true,
+          kicker: 'Featured · team project',
           title: 'TopClubs',
+          modules: [
+            { name: 'REST API', detail: 'NestJS · MySQL' },
+            { name: 'Admin dashboard', detail: 'Angular' },
+            { name: 'Management dashboard', detail: 'Angular' },
+            { name: 'Android app', detail: 'Kotlin' },
+            { name: 'Website', detail: 'Angular SSR' },
+          ],
           description:
             'A platform to book football pitches, set up open matches and organise teams (7-a-side, 11-a-side and futsal). I work on the REST API, the admin and management dashboards, the Android app and the website.',
           tags: ['NestJS', 'TypeScript', 'Angular', 'Kotlin', 'MySQL'],
           link: { href: 'https://topclubs.es', label: 'topclubs.es' },
         },
         {
+          icon: 'cloud',
           title: 'Cloud Content Manager',
           description: 'A web app for managing and storing content in the cloud, with an intuitive interface and role-based permissions.',
           tags: ['Angular', 'Node.js'],
         },
         {
+          icon: 'send',
           title: 'Bulk Email Sender',
           description: 'A platform to write, store and send emails in bulk, with authentication and a full send log.',
           tags: ['Django', 'Python'],
         },
         {
           kicker: 'Grupo ASESSORA',
+          icon: 'puzzle',
           title: 'Moodle Plugins',
           description: 'Building and maintaining custom Moodle plugins tailored to educational management and online training.',
           tags: ['PHP', 'Moodle'],
