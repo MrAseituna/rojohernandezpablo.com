@@ -27,6 +27,7 @@ export interface Project {
   kicker?: string
   description: string
   tags: string[]
+  link?: { href: string; label: string }
 }
 
 export interface Content {
@@ -132,7 +133,7 @@ export const content: Record<Lang, Content> = {
             'Funcionalidades de backend y frontend en plataformas de formación y de gestión interna.',
             'Mantenimiento y evolución de plugins y módulos para sistemas de gestión educativa (Moodle).',
             'Gestión de plataformas de cursos: publicación de contenidos, seguimiento de usuarios y resolución de incidencias.',
-            'Creación de páginas en React con pasarelas de pago (proyecto Normattivo).',
+            'Creación de páginas en React con pasarelas de pago.',
           ],
         },
         {
@@ -147,6 +148,14 @@ export const content: Record<Lang, Content> = {
       title: 'Proyectos',
       intro: 'Una selección de lo que he construido.',
       items: [
+        {
+          kicker: 'Proyecto en equipo',
+          title: 'TopClubs',
+          description:
+            'Plataforma para reservar campos de fútbol, crear partidos abiertos y organizar equipos (fútbol 7, fútbol 11 y futsal). Participo en la API REST, los paneles de administración y gestión, la app Android y la web.',
+          tags: ['NestJS', 'TypeScript', 'Angular', 'Kotlin', 'MySQL'],
+          link: { href: 'https://topclubs.es', label: 'topclubs.es' },
+        },
         {
           title: 'Gestión de Contenidos en la Nube',
           description:
@@ -164,12 +173,6 @@ export const content: Record<Lang, Content> = {
           description:
             'Desarrollo y mantenimiento de plugins personalizados para Moodle, adaptados a la gestión educativa y la formación online.',
           tags: ['PHP', 'Moodle'],
-        },
-        {
-          kicker: 'Grupo ASESSORA',
-          title: 'Normattivo',
-          description: 'Creación de páginas en React con una pasarela de pago integrada.',
-          tags: ['React', 'Pasarela de pago'],
         },
       ],
     },
@@ -264,7 +267,7 @@ export const content: Record<Lang, Content> = {
             'Shipping backend and frontend features for e-learning and internal management platforms.',
             'Maintaining and extending plugins and modules for learning management systems (Moodle).',
             'Running course platforms: publishing content, tracking learners and resolving support issues.',
-            'Building React pages with integrated payment gateways (Normattivo project).',
+            'Building React pages with integrated payment gateways.',
           ],
         },
         {
@@ -280,6 +283,14 @@ export const content: Record<Lang, Content> = {
       intro: "A selection of things I've built.",
       items: [
         {
+          kicker: 'Team project',
+          title: 'TopClubs',
+          description:
+            'A platform to book football pitches, set up open matches and organise teams (7-a-side, 11-a-side and futsal). I work on the REST API, the admin and management dashboards, the Android app and the website.',
+          tags: ['NestJS', 'TypeScript', 'Angular', 'Kotlin', 'MySQL'],
+          link: { href: 'https://topclubs.es', label: 'topclubs.es' },
+        },
+        {
           title: 'Cloud Content Manager',
           description: 'A web app for managing and storing content in the cloud, with an intuitive interface and role-based permissions.',
           tags: ['Angular', 'Node.js'],
@@ -294,12 +305,6 @@ export const content: Record<Lang, Content> = {
           title: 'Moodle Plugins',
           description: 'Building and maintaining custom Moodle plugins tailored to educational management and online training.',
           tags: ['PHP', 'Moodle'],
-        },
-        {
-          kicker: 'Grupo ASESSORA',
-          title: 'Normattivo',
-          description: 'Building React pages with an integrated payment gateway.',
-          tags: ['React', 'Payment gateway'],
         },
       ],
     },

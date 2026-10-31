@@ -1248,3 +1248,23 @@ ol {
     width: auto;
   }
 }
+
+.project__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  align-self: flex-start;
+  margin-top: 1.2rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--text);
+  border-bottom: 1px solid rgb(242 196 141 / 0.4);
+  padding-bottom: 0.1rem;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.project__link:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+}

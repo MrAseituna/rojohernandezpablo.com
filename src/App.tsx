@@ -344,6 +344,13 @@ export default function App() {
                       <li key={tag}>{tag}</li>
                     ))}
                   </ul>
+                  {p.link && (
+                    <a className="project__link" href={p.link.href} target="_blank" rel="noopener noreferrer">
+                      {p.link.label}
+                      <Icon name="external" />
+                      <span className="sr-only">{newTab}</span>
+                    </a>
+                  )}
                 </Card>
               ))}
             </div>
