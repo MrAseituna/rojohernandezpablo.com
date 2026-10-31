@@ -709,14 +709,16 @@ export default function App() {
                       <span className="lang__name">{l.name}</span>
                       <span className="lang__level">{l.level}</span>
                     </div>
-                    {/* Escala europea A1–C2; el nativo llena la barra */}
-                    <div className="cefr" role="img" aria-label={`${l.name}: ${l.level}`}>
-                      {['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((lvl, i) => (
-                        <span key={lvl} className={l.cefr === 0 || i < l.cefr ? 'on' : ''}>
-                          {lvl}
-                        </span>
-                      ))}
-                    </div>
+                    {/* Escala europea A1–C2; solo para idiomas aprendidos (en el nativo no tiene sentido) */}
+                    {l.cefr > 0 && (
+                      <div className="cefr" role="img" aria-label={`${l.name}: ${l.level}`}>
+                        {['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((lvl, i) => (
+                          <span key={lvl} className={i < l.cefr ? 'on' : ''}>
+                            {lvl}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     <p className="lang__detail">{l.detail}</p>
                   </div>
                 ))}
