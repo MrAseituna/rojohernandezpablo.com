@@ -1,7 +1,8 @@
 # Portfolio · Pablo Rojo Hernández
 
-Web personal estática (Vite + React + TypeScript) pensada para publicarse en
-`https://rojohernandezpablo.com` como Cloudflare Worker con assets estáticos.
+Web personal estática (Vite + React + TypeScript) publicada en
+`https://rojohernandezpablo.com` con GitHub Pages
+(repositorio `MrAseituna/rojohernandezpablo.com`).
 No tiene backend, base de datos, analítica ni trackers.
 
 ## Arrancar en local
@@ -35,20 +36,16 @@ Por privacidad, **no se publica el teléfono** ni el PDF del CV (que lo incluye)
 Si quieres un botón «Descargar CV», genera un PDF sin teléfono, guárdalo en
 `public/` y añade el enlace en el hero de `src/App.tsx`.
 
-## Publicar en Cloudflare
+## Publicar
 
-La configuración está en `wrangler.jsonc` (Worker `portfolio`, assets en `./dist`,
-página 404 propia y dominios `rojohernandezpablo.com` + `www.rojohernandezpablo.com`).
+Se publica sola con GitHub Pages: cada `git push` a `main` lanza el flujo
+`.github/workflows/pages.yml`, que compila y sube `dist/`.
 
-1. Autentícate una vez: `npx wrangler login`
-   (o exporta un token: `export CLOUDFLARE_API_TOKEN=...`, con permiso para
-   Workers y para el DNS de la zona `rojohernandezpablo.com`).
-2. Publica:
+```bash
+git add -A && git commit -m "Describe el cambio" && git push
+```
 
-   ```bash
-   npm run deploy     # = npm run build && wrangler deploy
-   ```
-
-Los dominios personalizados se crean en el primer despliegue; la zona
-`rojohernandezpablo.com` tiene que estar en la misma cuenta de Cloudflare (ya lo
-está, porque `dashboard.rojohernandezpablo.com` vive ahí).
+El dominio lo fija `public/CNAME`. En Cloudflare, `rojohernandezpablo.com` (registros
+A/AAAA de GitHub Pages) y `www` (CNAME a `mraseituna.github.io`) están **sin proxy**
+(nube gris) a propósito: así no pasan por las IPs de Cloudflare que las operadoras
+españolas bloquean durante los partidos de LaLiga. No actives el proxy en esos registros.
