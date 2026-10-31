@@ -12,15 +12,21 @@ export const contact = {
   linkedinLabel: 'linkedin.com/in/pablorojohdez',
 }
 
+// Tecnologías de la cinta en movimiento y de la sección de habilidades
+const skillsShared = {
+  frontend: ['HTML', 'CSS', 'JavaScript', 'TypeScript', 'Angular', 'React', 'Next.js'],
+  backend: ['Node.js', 'Django (Python)', 'Spring Boot (Java)', 'PHP'],
+  db: ['SQL', 'PostgreSQL'],
+  other: ['Git', 'Moodle'],
+}
+export const marquee = ['Angular', 'React', 'Django', 'Spring Boot', 'TypeScript', 'Node.js', 'Next.js', 'PHP', 'PostgreSQL', 'Python', 'Java', 'Git']
+
 export interface Project {
   title: string
+  /** Contexto pequeño sobre el título (p. ej. «Grupo ASESSORA») */
+  kicker?: string
   description: string
   tags: string[]
-  /** Etiqueta pequeña sobre el título (p. ej. «Proyecto personal») */
-  kicker?: string
-  /** Lista de detalles opcional */
-  bullets?: string[]
-  link?: { href: string; label: string; note?: string }
 }
 
 export interface Content {
@@ -29,45 +35,44 @@ export interface Content {
   skipLink: string
   langToggle: { label: string; short: string }
   hero: {
+    status: string
     greeting: string
-    name: string
+    firstName: string
+    lastName: string
     role: string
     location: string
     pitch: string
     ctaProjects: string
     ctaContact: string
     photoAlt: string
+    scroll: string
   }
-  about: { title: string; paragraphs: string[]; highlights: { value: string; label: string }[] }
+  stats: { value: string; label: string }[]
+  about: { title: string; statement: string; paragraphs: string[]; traits: string[] }
   experience: {
     title: string
+    current: string
     items: { role: string; company: string; period: string; bullets: string[]; current?: boolean }[]
   }
   projects: { title: string; intro: string; items: Project[] }
-  skills: { title: string; groups: { name: string; items: string[] }[] }
+  skills: { title: string; intro: string; groups: { name: string; items: string[] }[] }
   education: {
     title: string
     items: { title: string; school: string; period: string }[]
     languagesTitle: string
-    languages: { name: string; level: string }[]
+    languages: { name: string; level: string; detail: string; /** 1–6 en la escala A1–C2; 0 = nativo */ cefr: number }[]
   }
   contactSection: {
+    eyebrow: string
     title: string
     text: string
     emailCta: string
+    copy: string
+    copied: string
     linkedinCta: string
   }
-  footer: { built: string; rights: string }
+  footer: { built: string; rights: string; top: string }
 }
-
-const skillsShared = {
-  frontend: ['HTML', 'CSS', 'JavaScript', 'TypeScript', 'Angular', 'React', 'Next.js'],
-  backend: ['Node.js', 'Django (Python)', 'Spring Boot (Java)', 'PHP'],
-  db: ['SQL', 'PostgreSQL'],
-  other: ['Git', 'Moodle', 'Cloudflare Workers'],
-}
-
-const dashboardUrl = 'https://dashboard.rojohernandezpablo.com'
 
 export const content: Record<Lang, Content> = {
   es: {
@@ -80,36 +85,42 @@ export const content: Record<Lang, Content> = {
       about: 'Sobre mí',
       experience: 'Experiencia',
       projects: 'Proyectos',
-      skills: 'Habilidades',
+      skills: 'Stack',
       education: 'Formación',
       contact: 'Contacto',
     },
     skipLink: 'Saltar al contenido',
     langToggle: { label: 'Switch to English', short: 'EN' },
     hero: {
+      status: 'Abierto a nuevas oportunidades',
       greeting: 'Hola, soy',
-      name: 'Pablo Rojo Hernández',
+      firstName: 'Pablo',
+      lastName: 'Rojo Hernández',
       role: 'Desarrollador de Aplicaciones Web',
       location: 'Sevilla, España',
       pitch: 'Construyo aplicaciones web completas, del backend a la interfaz, pensadas para resolver problemas reales.',
       ctaProjects: 'Ver proyectos',
-      ctaContact: 'Contactar',
+      ctaContact: 'Hablemos',
       photoAlt: 'Retrato de Pablo Rojo Hernández',
+      scroll: 'Desliza',
     },
+    stats: [
+      { value: '2+', label: 'años desarrollando en proyectos reales' },
+      { value: 'Full-stack', label: 'del frontend a la base de datos' },
+      { value: 'B2', label: 'de inglés · Cambridge First Certificate' },
+    ],
     about: {
       title: 'Sobre mí',
+      statement: 'Convierto necesidades reales en aplicaciones web que funcionan, se mantienen y crecen.',
       paragraphs: [
         'Soy desarrollador de aplicaciones web con experiencia en proyectos reales usando Angular, Spring Boot y Django.',
         'Me defino como una persona proactiva, resolutiva y comprometida con la mejora continua. Busco un entorno en el que pueda aportar valor desde el primer día y seguir creciendo como profesional.',
       ],
-      highlights: [
-        { value: '2024', label: 'Desarrollando en Grupo ASESSORA' },
-        { value: 'Full-stack', label: 'Frontend, backend y bases de datos' },
-        { value: 'B2', label: 'Inglés · Cambridge First Certificate' },
-      ],
+      traits: ['Proactivo', 'Resolutivo', 'Mejora continua', 'Trabajo en equipo'],
     },
     experience: {
       title: 'Experiencia',
+      current: 'Actual',
       items: [
         {
           role: 'Desarrollador de aplicaciones web',
@@ -134,21 +145,8 @@ export const content: Record<Lang, Content> = {
     },
     projects: {
       title: 'Proyectos',
-      intro: 'Una selección de lo que he construido, en el trabajo y por mi cuenta.',
+      intro: 'Una selección de lo que he construido.',
       items: [
-        {
-          kicker: 'Proyecto personal',
-          title: 'Panel personal «Mis apps»',
-          description:
-            'Un panel privado con inicio de sesión que reúne mis propias mini-aplicaciones, desplegado en el edge de Cloudflare.',
-          bullets: [
-            'Gestión de mi sección de la Banda de Cornetas y Tambores Las Cigarreras (Sevilla): asistencia, convocatorias con rotación justa, subgrupos por marcha, formaciones e imágenes para compartir con el escudo de la banda.',
-            'Registro de gimnasio para dos personas: series, repeticiones y kilos, gráficas de progreso y medidas corporales.',
-            'Autenticación propia con PBKDF2 y permisos por aplicación.',
-          ],
-          tags: ['React', 'TypeScript', 'Hono', 'Cloudflare Workers', 'Cloudflare D1 (SQLite)'],
-          link: { href: dashboardUrl, label: 'dashboard.rojohernandezpablo.com', note: 'Privado · requiere inicio de sesión' },
-        },
         {
           title: 'Gestión de Contenidos en la Nube',
           description:
@@ -157,20 +155,27 @@ export const content: Record<Lang, Content> = {
         },
         {
           title: 'Aplicación de Envío de Correos',
-          description:
-            'Plataforma para redactar, almacenar y enviar correos de forma masiva, con autenticación y registro de envíos.',
+          description: 'Plataforma para redactar, almacenar y enviar correos de forma masiva, con autenticación y registro de envíos.',
           tags: ['Django', 'Python'],
         },
         {
+          kicker: 'Grupo ASESSORA',
           title: 'Plugins para Moodle',
           description:
             'Desarrollo y mantenimiento de plugins personalizados para Moodle, adaptados a la gestión educativa y la formación online.',
           tags: ['PHP', 'Moodle'],
         },
+        {
+          kicker: 'Grupo ASESSORA',
+          title: 'Normattivo',
+          description: 'Creación de páginas en React con una pasarela de pago integrada.',
+          tags: ['React', 'Pasarela de pago'],
+        },
       ],
     },
     skills: {
-      title: 'Habilidades',
+      title: 'Stack',
+      intro: 'Las herramientas con las que trabajo cada día.',
       groups: [
         { name: 'Frontend', items: skillsShared.frontend },
         { name: 'Backend', items: skillsShared.backend },
@@ -181,26 +186,25 @@ export const content: Record<Lang, Content> = {
     education: {
       title: 'Formación',
       items: [
-        {
-          title: 'Grado Superior en Desarrollo de Aplicaciones Web',
-          school: 'IES Julio Verne · Sevilla',
-          period: '2022 – 2024',
-        },
+        { title: 'Grado Superior en Desarrollo de Aplicaciones Web', school: 'IES Julio Verne · Sevilla', period: '2022 – 2024' },
         { title: 'Bachillerato Tecnológico', school: 'IES Isbilya · Sevilla', period: '2019 – 2021' },
       ],
       languagesTitle: 'Idiomas',
       languages: [
-        { name: 'Español', level: 'Nativo' },
-        { name: 'Inglés', level: 'B2 · First Certificate (Cambridge)' },
+        { name: 'Español', level: 'Nativo', detail: 'Lengua materna', cefr: 0 },
+        { name: 'Inglés', level: 'B2', detail: 'First Certificate · Cambridge', cefr: 4 },
       ],
     },
     contactSection: {
-      title: 'Contacto',
+      eyebrow: 'Contacto',
+      title: '¿Hablamos?',
       text: '¿Tienes un proyecto, una oferta o simplemente quieres hablar? Escríbeme y te responderé lo antes posible.',
       emailCta: 'Escríbeme',
+      copy: 'Copiar email',
+      copied: '¡Copiado!',
       linkedinCta: 'LinkedIn',
     },
-    footer: { built: 'Hecho con React y TypeScript en Sevilla.', rights: 'Pablo Rojo Hernández' },
+    footer: { built: 'Diseñado y desarrollado en Sevilla.', rights: 'Pablo Rojo Hernández', top: 'Volver arriba' },
   },
 
   en: {
@@ -213,36 +217,42 @@ export const content: Record<Lang, Content> = {
       about: 'About',
       experience: 'Experience',
       projects: 'Projects',
-      skills: 'Skills',
+      skills: 'Stack',
       education: 'Education',
       contact: 'Contact',
     },
     skipLink: 'Skip to content',
     langToggle: { label: 'Cambiar a español', short: 'ES' },
     hero: {
+      status: 'Open to new opportunities',
       greeting: "Hi, I'm",
-      name: 'Pablo Rojo Hernández',
+      firstName: 'Pablo',
+      lastName: 'Rojo Hernández',
       role: 'Web Application Developer',
       location: 'Seville, Spain',
       pitch: 'I build complete web applications, from the backend to the interface, designed to solve real problems.',
       ctaProjects: 'See my work',
-      ctaContact: 'Get in touch',
+      ctaContact: "Let's talk",
       photoAlt: 'Portrait of Pablo Rojo Hernández',
+      scroll: 'Scroll',
     },
+    stats: [
+      { value: '2+', label: 'years building real-world projects' },
+      { value: 'Full-stack', label: 'from the frontend to the database' },
+      { value: 'B2', label: 'English · Cambridge First Certificate' },
+    ],
     about: {
       title: 'About me',
+      statement: 'I turn real needs into web applications that work, last and grow.',
       paragraphs: [
         "I'm a web application developer with hands-on experience on real projects using Angular, Spring Boot and Django.",
         "I'm proactive, solution-oriented and committed to continuous improvement. I'm looking for a team where I can add value from day one and keep growing as a professional.",
       ],
-      highlights: [
-        { value: '2024', label: 'Building software at Grupo ASESSORA' },
-        { value: 'Full-stack', label: 'Frontend, backend and databases' },
-        { value: 'B2', label: 'English · Cambridge First Certificate' },
-      ],
+      traits: ['Proactive', 'Problem solver', 'Continuous improvement', 'Team player'],
     },
     experience: {
       title: 'Experience',
+      current: 'Current',
       items: [
         {
           role: 'Web Application Developer',
@@ -267,25 +277,11 @@ export const content: Record<Lang, Content> = {
     },
     projects: {
       title: 'Projects',
-      intro: "A selection of things I've built, both at work and on my own.",
+      intro: "A selection of things I've built.",
       items: [
         {
-          kicker: 'Personal project',
-          title: '“Mis apps” personal dashboard',
-          description:
-            'A private, login-protected dashboard that hosts my own mini-apps, running on Cloudflare’s edge network.',
-          bullets: [
-            'Section manager for the Las Cigarreras marching band (Banda de Cornetas y Tambores, Seville): attendance, call-ups with fair rotation, per-march sub-groups, formation layouts and shareable images featuring the band crest.',
-            'Gym tracker for two people: sets, reps and weights, progress charts and body measurements.',
-            'Custom PBKDF2 authentication with per-app permissions.',
-          ],
-          tags: ['React', 'TypeScript', 'Hono', 'Cloudflare Workers', 'Cloudflare D1 (SQLite)'],
-          link: { href: dashboardUrl, label: 'dashboard.rojohernandezpablo.com', note: 'Private · login required' },
-        },
-        {
           title: 'Cloud Content Manager',
-          description:
-            'A web app for managing and storing content in the cloud, with an intuitive interface and role-based permissions.',
+          description: 'A web app for managing and storing content in the cloud, with an intuitive interface and role-based permissions.',
           tags: ['Angular', 'Node.js'],
         },
         {
@@ -294,15 +290,22 @@ export const content: Record<Lang, Content> = {
           tags: ['Django', 'Python'],
         },
         {
+          kicker: 'Grupo ASESSORA',
           title: 'Moodle Plugins',
-          description:
-            'Building and maintaining custom Moodle plugins tailored to educational management and online training.',
+          description: 'Building and maintaining custom Moodle plugins tailored to educational management and online training.',
           tags: ['PHP', 'Moodle'],
+        },
+        {
+          kicker: 'Grupo ASESSORA',
+          title: 'Normattivo',
+          description: 'Building React pages with an integrated payment gateway.',
+          tags: ['React', 'Payment gateway'],
         },
       ],
     },
     skills: {
-      title: 'Skills',
+      title: 'Stack',
+      intro: 'The tools I work with every day.',
       groups: [
         { name: 'Frontend', items: skillsShared.frontend },
         { name: 'Backend', items: skillsShared.backend },
@@ -313,25 +316,24 @@ export const content: Record<Lang, Content> = {
     education: {
       title: 'Education',
       items: [
-        {
-          title: 'Higher Vocational Diploma in Web Application Development',
-          school: 'IES Julio Verne · Seville',
-          period: '2022 – 2024',
-        },
+        { title: 'Higher Vocational Diploma in Web Application Development', school: 'IES Julio Verne · Seville', period: '2022 – 2024' },
         { title: 'High School Diploma, Science & Technology track', school: 'IES Isbilya · Seville', period: '2019 – 2021' },
       ],
       languagesTitle: 'Languages',
       languages: [
-        { name: 'Spanish', level: 'Native' },
-        { name: 'English', level: 'B2 · First Certificate (Cambridge)' },
+        { name: 'Spanish', level: 'Native', detail: 'Mother tongue', cefr: 0 },
+        { name: 'English', level: 'B2', detail: 'First Certificate · Cambridge', cefr: 4 },
       ],
     },
     contactSection: {
-      title: 'Contact',
+      eyebrow: 'Contact',
+      title: "Let's talk",
       text: "Got a project, a job opening or just want to chat? Drop me a line and I'll get back to you soon.",
       emailCta: 'Email me',
+      copy: 'Copy email',
+      copied: 'Copied!',
       linkedinCta: 'LinkedIn',
     },
-    footer: { built: 'Built with React and TypeScript in Seville.', rights: 'Pablo Rojo Hernández' },
+    footer: { built: 'Designed and built in Seville.', rights: 'Pablo Rojo Hernández', top: 'Back to top' },
   },
 }
