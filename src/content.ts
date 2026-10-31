@@ -6,6 +6,10 @@
 
 export type Lang = 'es' | 'en'
 
+// Clave pública de Web3Forms (https://web3forms.com): reenvía los mensajes del formulario al email.
+// Vacía = el formulario abre el cliente de correo como alternativa.
+export const WEB3FORMS_KEY = ''
+
 export const contact = {
   email: 'rojohernandezpablo@gmail.com',
   linkedin: 'https://www.linkedin.com/in/pablorojohdez',
@@ -29,6 +33,8 @@ export interface Project {
   /** Partes del proyecto en las que he trabajado (proyecto destacado) */
   modules?: { name: string; detail: string }[]
   title: string
+  /** Nombre de carpeta que se ve en la barra de la ventana */
+  slug: string
   /** Contexto pequeño sobre el título (p. ej. «Grupo ASESSORA») */
   kicker?: string
   description: string
@@ -53,6 +59,8 @@ export interface Content {
     ctaContact: string
     photoAlt: string
     scroll: string
+    /** Líneas de la terminal animada de la portada */
+    terminal: { cmd: string; out: string }[]
   }
   stats: { value: string; label: string }[]
   about: { title: string; statement: string; paragraphs: string[]; traits: string[] }
@@ -77,6 +85,19 @@ export interface Content {
     copy: string
     copied: string
     linkedinCta: string
+    form: {
+      name: string
+      email: string
+      message: string
+      namePh: string
+      emailPh: string
+      messagePh: string
+      send: string
+      sending: string
+      ok: string
+      error: string
+      privacy: string
+    }
   }
   footer: { built: string; rights: string; top: string }
 }
@@ -110,6 +131,12 @@ export const content: Record<Lang, Content> = {
       ctaContact: 'Hablemos',
       photoAlt: 'Retrato de Pablo Rojo Hernández',
       scroll: 'Desliza',
+      terminal: [
+        { cmd: 'whoami', out: 'pablo rojo hernández' },
+        { cmd: 'cat rol.txt', out: 'Desarrollador de Aplicaciones Web' },
+        { cmd: 'ls stack/', out: 'angular  react  django  spring-boot  node  php' },
+        { cmd: 'echo $UBICACION', out: 'Sevilla, España' },
+      ],
     },
     stats: [
       { value: '2+', label: 'años desarrollando en proyectos reales' },
@@ -160,6 +187,7 @@ export const content: Record<Lang, Content> = {
           featured: true,
           kicker: 'Proyecto destacado · en equipo',
           title: 'TopClubs',
+          slug: 'topclubs',
           modules: [
             { name: 'API REST', detail: 'NestJS · MySQL' },
             { name: 'Panel de administración', detail: 'Angular' },
@@ -175,6 +203,7 @@ export const content: Record<Lang, Content> = {
         {
           icon: 'cloud',
           title: 'Gestión de Contenidos en la Nube',
+          slug: 'gestion-contenidos',
           description:
             'Aplicación web para gestionar y almacenar contenidos en la nube, con una interfaz intuitiva y control de permisos según el tipo de usuario.',
           tags: ['Angular', 'Node.js'],
@@ -182,6 +211,7 @@ export const content: Record<Lang, Content> = {
         {
           icon: 'send',
           title: 'Aplicación de Envío de Correos',
+          slug: 'envio-correos',
           description: 'Plataforma para redactar, almacenar y enviar correos de forma masiva, con autenticación y registro de envíos.',
           tags: ['Django', 'Python'],
         },
@@ -189,6 +219,7 @@ export const content: Record<Lang, Content> = {
           kicker: 'Grupo ASESSORA',
           icon: 'puzzle',
           title: 'Plugins para Moodle',
+          slug: 'moodle-plugins',
           description:
             'Desarrollo y mantenimiento de plugins personalizados para Moodle, adaptados a la gestión educativa y la formación online.',
           tags: ['PHP', 'Moodle'],
@@ -225,6 +256,19 @@ export const content: Record<Lang, Content> = {
       copy: 'Copiar email',
       copied: '¡Copiado!',
       linkedinCta: 'LinkedIn',
+      form: {
+        name: 'Nombre',
+        email: 'Email',
+        message: 'Mensaje',
+        namePh: 'Tu nombre',
+        emailPh: 'tu@email.com',
+        messagePh: 'Cuéntame en qué puedo ayudarte…',
+        send: 'Enviar mensaje',
+        sending: 'Enviando…',
+        ok: '¡Mensaje enviado! Te responderé lo antes posible.',
+        error: 'No se ha podido enviar. Escríbeme directamente a',
+        privacy: 'Solo usaré tus datos para responderte.',
+      },
     },
     footer: { built: 'Diseñado y desarrollado en Sevilla.', rights: 'Pablo Rojo Hernández', top: 'Volver arriba' },
   },
@@ -257,6 +301,12 @@ export const content: Record<Lang, Content> = {
       ctaContact: "Let's talk",
       photoAlt: 'Portrait of Pablo Rojo Hernández',
       scroll: 'Scroll',
+      terminal: [
+        { cmd: 'whoami', out: 'pablo rojo hernández' },
+        { cmd: 'cat role.txt', out: 'Web Application Developer' },
+        { cmd: 'ls stack/', out: 'angular  react  django  spring-boot  node  php' },
+        { cmd: 'echo $LOCATION', out: 'Seville, Spain' },
+      ],
     },
     stats: [
       { value: '2+', label: 'years building real-world projects' },
@@ -307,6 +357,7 @@ export const content: Record<Lang, Content> = {
           featured: true,
           kicker: 'Featured · team project',
           title: 'TopClubs',
+          slug: 'topclubs',
           modules: [
             { name: 'REST API', detail: 'NestJS · MySQL' },
             { name: 'Admin dashboard', detail: 'Angular' },
@@ -322,12 +373,14 @@ export const content: Record<Lang, Content> = {
         {
           icon: 'cloud',
           title: 'Cloud Content Manager',
+          slug: 'cloud-content-manager',
           description: 'A web app for managing and storing content in the cloud, with an intuitive interface and role-based permissions.',
           tags: ['Angular', 'Node.js'],
         },
         {
           icon: 'send',
           title: 'Bulk Email Sender',
+          slug: 'bulk-email-sender',
           description: 'A platform to write, store and send emails in bulk, with authentication and a full send log.',
           tags: ['Django', 'Python'],
         },
@@ -335,6 +388,7 @@ export const content: Record<Lang, Content> = {
           kicker: 'Grupo ASESSORA',
           icon: 'puzzle',
           title: 'Moodle Plugins',
+          slug: 'moodle-plugins',
           description: 'Building and maintaining custom Moodle plugins tailored to educational management and online training.',
           tags: ['PHP', 'Moodle'],
         },
@@ -370,6 +424,19 @@ export const content: Record<Lang, Content> = {
       copy: 'Copy email',
       copied: 'Copied!',
       linkedinCta: 'LinkedIn',
+      form: {
+        name: 'Name',
+        email: 'Email',
+        message: 'Message',
+        namePh: 'Your name',
+        emailPh: 'you@email.com',
+        messagePh: 'Tell me how I can help…',
+        send: 'Send message',
+        sending: 'Sending…',
+        ok: "Message sent! I'll get back to you soon.",
+        error: "Couldn't send it. Email me directly at",
+        privacy: "I'll only use your details to reply to you.",
+      },
     },
     footer: { built: 'Designed and built in Seville.', rights: 'Pablo Rojo Hernández', top: 'Back to top' },
   },

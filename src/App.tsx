@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
-import { contact, content, marquee, type Lang, type Project } from './content'
-import Starfield from './Starfield'
+import { useEffect, useRef, useState, type FormEvent, type PointerEvent, type ReactNode } from 'react'
+import { WEB3FORMS_KEY, contact, content, marquee, type Content, type Lang, type Project } from './content'
 import { Icon } from './icons'
 
 const STORAGE_KEY = 'lang'
 const SECTIONS = ['sobre-mi', 'experiencia', 'proyectos', 'stack', 'formacion', 'contacto'] as const
+const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches
 
 function initialLang(): Lang {
   try {
@@ -31,6 +31,23 @@ function Card({ className = '', children, as: Tag = 'article' }: { className?: s
   )
 }
 
+// Ventana de editor/terminal con su barra de título
+function Window({ title, className = '', children }: { title: string; className?: string; children: ReactNode }) {
+  return (
+    <div className={`window ${className}`}>
+      <div className="window__bar" aria-hidden="true">
+        <span className="window__dots">
+          <i />
+          <i />
+          <i />
+        </span>
+        <span className="window__title">{title}</span>
+      </div>
+      {children}
+    </div>
+  )
+}
+
 function Photo({ alt }: { alt: string }) {
   const [failed, setFailed] = useState(false)
   if (failed)
@@ -42,30 +59,203 @@ function Photo({ alt }: { alt: string }) {
   return <img className="photo" src="/foto.jpg" alt={alt} width={600} height={600} fetchPriority="high" onError={() => setFailed(true)} />
 }
 
-// Proyecto destacado: texto + «sistema orbital» con las partes del proyecto alrededor del núcleo
-function Featured({ p, builtWith, visit, newTab, lang }: { p: Project; builtWith: string; visit: string; newTab: string; lang: Lang }) {
+// Terminal que escribe sus comandos uno a uno (todo visible de golpe si se reduce el movimiento)
+function Terminal({ lines }: { lines: Content['hero']['terminal'] }) {
+  // shown = líneas ya completas; chars = letras escritas de la línea en curso
+  const [shown, setShown] = useState(0)
+  const [chars, setChars] = useState(0)
+
+  useEffect(() => {
+    if (reducedMotion()) {
+      setShown(lines.length)
+      return
+    }
+    setShown(0)
+    setChars(0)
+    let line = 0
+    let c = 0
+    let timer = 0
+    const tick = () => {
+      if (line >= lines.length) return
+      if (c < lines[line].cmd.length) {
+        c++
+        setChars(c)
+        timer = window.setTimeout(tick, 55 + Math.random() * 60)
+      } else {
+        line++
+        c = 0
+        setShown(line)
+        setChars(0)
+        timer = window.setTimeout(tick, 650)
+      }
+    }
+    timer = window.setTimeout(tick, 700)
+    return () => window.clearTimeout(timer)
+  }, [lines])
+
+  const typing = shown < lines.length ? lines[shown] : null
+  return (
+    <Window title="zsh — ~/pablo" className="terminal">
+      <div className="terminal__body" role="img" aria-label={lines.map((l) => `${l.cmd}: ${l.out}`).join('. ')}>
+        {lines.slice(0, shown).map((l) => (
+          <div key={l.cmd}>
+            <p>
+              <span className="t-prompt">❯</span> <span className="t-cmd">{l.cmd}</span>
+            </p>
+            <p className="t-out">{l.out}</p>
+          </div>
+        ))}
+        <p>
+          <span className="t-prompt">❯</span> {typing && <span className="t-cmd">{typing.cmd.slice(0, chars)}</span>}
+          <span className="caret" />
+        </p>
+      </div>
+    </Window>
+  )
+}
+
+// Ficha en forma de código TypeScript
+function ProfileCode({ lang, t }: { lang: Lang; t: Content }) {
+  const es = lang === 'es'
+  const K = ({ children }: { children: string }) => <span className="c-key">{children}</span>
+  const S = ({ children }: { children: string }) => <span className="c-str">'{children}'</span>
+  return (
+    <Window title="pablo.ts" className="code">
+      <pre className="code__body">
+        <code>
+          <span className="c-kw">const</span> <span className="c-var">pablo</span> = {'{\n'}
+          {'  '}
+          <K>{es ? 'rol' : 'role'}</K>: <S>{t.hero.role}</S>,{'\n'}
+          {'  '}
+          <K>{es ? 'ubicacion' : 'location'}</K>: <S>{t.hero.location}</S>,{'\n'}
+          {'  '}
+          <K>{es ? 'experiencia' : 'experience'}</K>: <S>{es ? '2+ años' : '2+ years'}</S>,{'\n'}
+          {'  '}
+          <K>{es ? 'enfoque' : 'focus'}</K>: [<S>frontend</S>, <S>backend</S>, <S>{es ? 'bases de datos' : 'databases'}</S>],{'\n'}
+          {'  '}
+          <K>{es ? 'idiomas' : 'languages'}</K>: {'{ '}
+          <K>es</K>: <S>{es ? 'nativo' : 'native'}</S>, <K>en</K>: <S>B2</S>
+          {' },\n'}
+          {'  '}
+          <K>{es ? 'disponible' : 'available'}</K>: <span className="c-bool">true</span>,{'\n'}
+          {'}'}
+        </code>
+      </pre>
+    </Window>
+  )
+}
+
+// stack.json con las tecnologías agrupadas
+function StackJson({ groups }: { groups: Content['skills']['groups'] }) {
+  return (
+    <Window title="stack.json" className="code code--stack">
+      <pre className="code__body">
+        <code>
+          {'{\n'}
+          {groups.map((g, gi) => (
+            <span key={g.name}>
+              {'  '}
+              <span className="c-key">"{g.name}"</span>: [
+              {g.items.map((it, i) => (
+                <span key={it}>
+                  <span className="c-str">"{it}"</span>
+                  {i < g.items.length - 1 ? ', ' : ''}
+                </span>
+              ))}
+              ]{gi < groups.length - 1 ? ',' : ''}
+              {'\n'}
+            </span>
+          ))}
+          {'}'}
+        </code>
+      </pre>
+    </Window>
+  )
+}
+
+// Diagrama de arquitectura de TopClubs con «paquetes» de datos viajando por los cables
+function Architecture({ p, lang }: { p: Project; lang: Lang }) {
+  const es = lang === 'es'
   const modules = p.modules ?? []
+  const api = modules[0]
+  const clients = modules.slice(1)
+  const cy = (i: number) => 52 + i * 78
+  const apiY = 172
+  const toApi = (i: number) => `M178 ${cy(i)} C 214 ${cy(i)}, 214 ${apiY}, 246 ${apiY}`
+  const toData = [`M374 ${apiY} C 400 ${apiY}, 400 112, 424 112`, `M374 ${apiY} C 400 ${apiY}, 400 232, 424 232`]
+  return (
+    <figure className="arch">
+      <svg viewBox="0 0 560 344" role="img" aria-labelledby="arch-title">
+        <title id="arch-title">{es ? 'Arquitectura de TopClubs: apps y paneles conectados a la API, que usa MySQL y S3' : 'TopClubs architecture: apps and dashboards connected to the API, which uses MySQL and S3'}</title>
+        <text className="arch__cap" x="20" y="18">
+          {es ? '// clientes' : '// clients'}
+        </text>
+        <text className="arch__cap" x="246" y="18">
+          // api
+        </text>
+        <text className="arch__cap" x="424" y="18">
+          {es ? '// datos' : '// data'}
+        </text>
+
+        {[...clients.map((_, i) => toApi(i)), ...toData].map((d, i) => (
+          <g key={d}>
+            <path d={d} className="arch__wire" />
+            <circle r="3.2" className="arch__packet">
+              <animateMotion dur={`${2.4 + (i % 3) * 0.5}s`} begin={`${i * 0.35}s`} repeatCount="indefinite" path={d} />
+            </circle>
+          </g>
+        ))}
+
+        {clients.map((m, i) => (
+          <g key={m.name} transform={`translate(20 ${cy(i) - 26})`}>
+            <rect width="158" height="52" rx="12" className="arch__node" />
+            <text x="14" y="23" className="arch__name">
+              {m.name}
+            </text>
+            <text x="14" y="40" className="arch__detail">
+              {m.detail}
+            </text>
+          </g>
+        ))}
+
+        <g transform={`translate(246 ${apiY - 44})`}>
+          <rect width="128" height="88" rx="16" className="arch__node arch__node--core" />
+          <text x="64" y="40" textAnchor="middle" className="arch__name arch__name--core">
+            {api?.name ?? 'API'}
+          </text>
+          <text x="64" y="60" textAnchor="middle" className="arch__detail">
+            NestJS
+          </text>
+        </g>
+
+        {[
+          { y: 112, name: 'MySQL', detail: es ? 'base de datos' : 'database' },
+          { y: 232, name: 'S3', detail: es ? 'archivos' : 'files' },
+        ].map((d) => (
+          <g key={d.name} transform={`translate(424 ${d.y - 26})`}>
+            <rect width="116" height="52" rx="12" className="arch__node arch__node--data" />
+            <text x="14" y="23" className="arch__name">
+              {d.name}
+            </text>
+            <text x="14" y="40" className="arch__detail">
+              {d.detail}
+            </text>
+          </g>
+        ))}
+      </svg>
+    </figure>
+  )
+}
+
+function Featured({ p, t, lang, newTab }: { p: Project; t: Content; lang: Lang; newTab: string }) {
   return (
     <Card className="featured">
       <div className="featured__text">
-        <p className="project__kicker">
-          <span className="featured__index">01</span> {p.kicker}
+        <p className="mono-label">
+          <span className="accent">01</span> · {p.kicker}
         </p>
         <h3 className="featured__title">{p.title}</h3>
         <p className="featured__desc">{p.description}</p>
-        {modules.length > 0 && (
-          <>
-            <p className="featured__label">{builtWith}</p>
-            <ul className="modules">
-              {modules.map((m) => (
-                <li key={m.name}>
-                  <span className="modules__name">{m.name}</span>
-                  <span className="modules__detail">{m.detail}</span>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
         <ul className="tags" aria-label={lang === 'es' ? 'Tecnologías' : 'Tech stack'}>
           {p.tags.map((tag) => (
             <li key={tag}>{tag}</li>
@@ -73,35 +263,104 @@ function Featured({ p, builtWith, visit, newTab, lang }: { p: Project; builtWith
         </ul>
         {p.link && (
           <a className="btn btn--primary featured__cta" href={p.link.href} target="_blank" rel="noopener noreferrer">
-            {visit} {p.link.label}
+            {t.projects.visit} {p.link.label}
             <Icon name="external" />
             <span className="sr-only">{newTab}</span>
           </a>
         )}
       </div>
-      <div className="orbit" aria-hidden="true">
-        <div className="orbit__ring orbit__ring--outer" />
-        <div className="orbit__ring orbit__ring--inner" />
-        <div className="orbit__core">
-          <span>{p.title}</span>
-        </div>
-        <div className="orbit__spin">
-          {modules.map((m, i) => (
-            <div key={m.name} className="orbit__node" style={{ '--a': `${(360 / modules.length) * i}deg` } as CSSProperties}>
-              <span className="orbit__planet">{m.name}</span>
-            </div>
-          ))}
-        </div>
+      <div className="featured__visual">
+        <p className="mono-label">{t.projects.builtWith}</p>
+        <Architecture p={p} lang={lang} />
       </div>
     </Card>
   )
 }
 
-function SectionHead({ id, index, title, intro }: { id: string; index: string; title: string; intro?: string }) {
+type FormState = 'idle' | 'sending' | 'ok' | 'error'
+
+function ContactForm({ t }: { t: Content['contactSection']['form'] }) {
+  const [state, setState] = useState<FormState>('idle')
+
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const form = e.currentTarget
+    const data = new FormData(form)
+    if (data.get('botcheck')) return // relleno por un bot
+    const name = String(data.get('name') ?? '')
+    const email = String(data.get('email') ?? '')
+    const message = String(data.get('message') ?? '')
+    // Sin clave de Web3Forms: abre el correo del visitante con el mensaje ya escrito
+    if (!WEB3FORMS_KEY) {
+      const body = `${message}\n\n— ${name} (${email})`
+      location.href = `mailto:${contact.email}?subject=${encodeURIComponent(`Contacto web · ${name}`)}&body=${encodeURIComponent(body)}`
+      return
+    }
+    setState('sending')
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: `Nuevo mensaje desde rojohernandezpablo.com · ${name}`,
+          from_name: 'rojohernandezpablo.com',
+          name,
+          email,
+          message,
+        }),
+      })
+      const json = (await res.json().catch(() => ({}))) as { success?: boolean }
+      if (!res.ok || !json.success) throw new Error()
+      setState('ok')
+      form.reset()
+    } catch {
+      setState('error')
+    }
+  }
+
+  return (
+    <Window title="nuevo-mensaje.sh" className="form-window">
+      <form className="form" onSubmit={submit}>
+        <label className="field">
+          <span className="field__label">{t.name}</span>
+          <input name="name" autoComplete="name" required maxLength={100} placeholder={t.namePh} />
+        </label>
+        <label className="field">
+          <span className="field__label">{t.email}</span>
+          <input name="email" type="email" autoComplete="email" required maxLength={150} placeholder={t.emailPh} />
+        </label>
+        <label className="field">
+          <span className="field__label">{t.message}</span>
+          <textarea name="message" required rows={5} maxLength={4000} placeholder={t.messagePh} />
+        </label>
+        {/* Trampa para bots: invisible para las personas */}
+        <input type="checkbox" name="botcheck" className="honeypot" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+        <div className="form__footer">
+          <p className="form__privacy">{t.privacy}</p>
+          <button className="btn btn--primary" disabled={state === 'sending'}>
+            {state === 'sending' ? t.sending : t.send}
+            <Icon name="send" />
+          </button>
+        </div>
+        <p className="form__status" role="status" aria-live="polite">
+          {state === 'ok' && <span className="ok">✓ {t.ok}</span>}
+          {state === 'error' && (
+            <span className="err">
+              {t.error} <a href={`mailto:${contact.email}`}>{contact.email}</a>
+            </span>
+          )}
+        </p>
+      </form>
+    </Window>
+  )
+}
+
+function SectionHead({ id, index, file, title, intro }: { id: string; index: string; file: string; title: string; intro?: string }) {
   return (
     <header className="section-head">
-      <p className="section-head__index" aria-hidden="true">
-        {index}
+      <p className="mono-label" aria-hidden="true">
+        <span className="accent">{index}</span> // {file}
       </p>
       <h2 id={id}>{title}</h2>
       {intro && <p className="section-head__intro">{intro}</p>}
@@ -145,7 +404,7 @@ export default function App() {
     return () => removeEventListener('scroll', onScroll)
   }, [])
 
-  // Sección activa en el menú
+  // Sección activa en el menú; la portada también cuenta para que arriba no quede ninguna marcada
   useEffect(() => {
     const io = new IntersectionObserver(
       (entries) => {
@@ -153,7 +412,6 @@ export default function App() {
       },
       { rootMargin: '-45% 0px -50% 0px' },
     )
-    // La portada también se observa para que, al volver arriba, no quede ninguna sección marcada
     ;['top', ...SECTIONS.map((id) => `s-${id}`)].forEach((id) => {
       const el = document.getElementById(id)
       if (el) io.observe(el)
@@ -181,7 +439,6 @@ export default function App() {
       { rootMargin: '0px 0px -8% 0px', threshold: 0.05 },
     )
     els.forEach((el) => io.observe(el))
-    // Red de seguridad: si el observer no se dispara nunca (pestaña oculta, capturas), se muestra todo
     const fallback = window.setTimeout(() => {
       if (!fired) els.forEach((el) => el.classList.add('is-visible'))
     }, 2000)
@@ -210,6 +467,8 @@ export default function App() {
     ['contacto', t.nav.contact],
   ]
   const newTab = lang === 'es' ? '(se abre en otra pestaña)' : '(opens in a new tab)'
+  const featured = t.projects.items.filter((p) => p.featured)
+  const others = t.projects.items.filter((p) => !p.featured)
 
   return (
     <>
@@ -218,21 +477,19 @@ export default function App() {
       </a>
       <div className="progress" ref={progressRef} aria-hidden="true" />
 
-      {/* Fondo: brillos de color y una retícula muy suave */}
+      {/* Fondo: nebulosas de color muy tenues y una retícula técnica */}
       <div className="backdrop" aria-hidden="true">
         <span className="blob blob--1" />
         <span className="blob blob--2" />
         <span className="blob blob--3" />
-        <Starfield />
         <span className="grid" />
-        <span className="grain" />
       </div>
 
       <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
         <div className="container site-header__inner">
           <a className="brand" href="#top" aria-label="Pablo Rojo Hernández">
             <span className="brand__mark" aria-hidden="true">
-              PR
+              <span className="accent">~/</span>pablo
             </span>
           </a>
           <nav aria-label={lang === 'es' ? 'Principal' : 'Main'} className="site-nav">
@@ -286,24 +543,10 @@ export default function App() {
             </div>
 
             <div className="hero__visual">
-              <div className="arch">
-                <div className="arch__halo" aria-hidden="true" />
-                <div className="arch__frame">
-                  <Photo alt={t.hero.photoAlt} />
-                </div>
-                <span className="float float--1" aria-hidden="true">
-                  Angular
-                </span>
-                <span className="float float--2" aria-hidden="true">
-                  React
-                </span>
-                <span className="float float--3" aria-hidden="true">
-                  Django
-                </span>
-                <span className="float float--4" aria-hidden="true">
-                  Spring Boot
-                </span>
-              </div>
+              <Window title="pablo.jpg" className="photo-window">
+                <Photo alt={t.hero.photoAlt} />
+              </Window>
+              <Terminal lines={t.hero.terminal} />
             </div>
           </div>
           <a className="scroll-cue" href="#sobre-mi" aria-label={t.hero.scroll}>
@@ -316,7 +559,7 @@ export default function App() {
         <section className="container stats reveal" aria-label={lang === 'es' ? 'En cifras' : 'At a glance'}>
           {t.stats.map((s) => (
             <Card key={s.label} as="div" className="stat">
-              <p className="stat__value gradient-text">{s.value}</p>
+              <p className="stat__value">{s.value}</p>
               <p className="stat__label">{s.label}</p>
             </Card>
           ))}
@@ -327,8 +570,9 @@ export default function App() {
           <div className="marquee__track">
             {[...marquee, ...marquee].map((m, i) => (
               <span key={i}>
+                <i>{'<'}</i>
                 {m}
-                <i>✦</i>
+                <i>{' />'}</i>
               </span>
             ))}
           </div>
@@ -336,20 +580,23 @@ export default function App() {
 
         {/* ── SOBRE MÍ ── */}
         <section className="section" id="s-sobre-mi" aria-labelledby="sobre-mi">
-          <div className="container about reveal">
-            <SectionHead id="sobre-mi" index="01" title={t.about.title} />
+          <div className="container reveal">
+            <SectionHead id="sobre-mi" index="01" file={lang === 'es' ? 'sobre-mi.md' : 'about.md'} title={t.about.title} />
             <div className="about__body">
-              <p className="about__statement">{t.about.statement}</p>
-              <div className="about__text">
-                {t.about.paragraphs.map((p) => (
-                  <p key={p}>{p}</p>
-                ))}
+              <div>
+                <p className="about__statement">{t.about.statement}</p>
+                <div className="about__text">
+                  {t.about.paragraphs.map((p) => (
+                    <p key={p}>{p}</p>
+                  ))}
+                </div>
                 <ul className="traits">
                   {t.about.traits.map((tr) => (
                     <li key={tr}>{tr}</li>
                   ))}
                 </ul>
               </div>
+              <ProfileCode lang={lang} t={t} />
             </div>
           </div>
         </section>
@@ -357,7 +604,7 @@ export default function App() {
         {/* ── EXPERIENCIA ── */}
         <section className="section" id="s-experiencia" aria-labelledby="experiencia">
           <div className="container reveal">
-            <SectionHead id="experiencia" index="02" title={t.experience.title} />
+            <SectionHead id="experiencia" index="02" file="git log" title={t.experience.title} />
             <ol className="timeline">
               {t.experience.items.map((item) => (
                 <li key={item.role + item.period} className={`timeline__item ${item.current ? 'is-current' : ''}`}>
@@ -365,7 +612,7 @@ export default function App() {
                   <Card as="div" className="timeline__card">
                     <div className="timeline__top">
                       <p className="timeline__period">{item.period}</p>
-                      {item.current && <span className="pill">{t.experience.current}</span>}
+                      {item.current && <span className="pill">HEAD · {t.experience.current}</span>}
                     </div>
                     <h3>{item.role}</h3>
                     <p className="timeline__company">
@@ -386,17 +633,24 @@ export default function App() {
         {/* ── PROYECTOS ── */}
         <section className="section" id="s-proyectos" aria-labelledby="proyectos">
           <div className="container reveal">
-            <SectionHead id="proyectos" index="03" title={t.projects.title} intro={t.projects.intro} />
-            {t.projects.items
-              .filter((p) => p.featured)
-              .map((p) => (
-                <Featured key={p.title} p={p} builtWith={t.projects.builtWith} visit={t.projects.visit} newTab={newTab} lang={lang} />
-              ))}
+            <SectionHead id="proyectos" index="03" file={lang === 'es' ? 'proyectos/' : 'projects/'} title={t.projects.title} intro={t.projects.intro} />
+            {featured.map((p) => (
+              <Featured key={p.title} p={p} t={t} lang={lang} newTab={newTab} />
+            ))}
             <div className="projects">
-              {t.projects.items
-                .filter((p) => !p.featured)
-                .map((p, i) => (
-                  <Card key={p.title} className="project">
+              {others.map((p, i) => (
+                <Card key={p.title} className="project">
+                  <div className="project__bar" aria-hidden="true">
+                    <span className="window__dots">
+                      <i />
+                      <i />
+                      <i />
+                    </span>
+                    <span className="project__path">
+                      ~/{lang === 'es' ? 'proyectos' : 'projects'}/{p.slug}
+                    </span>
+                  </div>
+                  <div className="project__body">
                     <div className="project__top">
                       <span className="project__icon" aria-hidden="true">
                         <Icon name={p.icon ?? 'cloud'} />
@@ -413,8 +667,9 @@ export default function App() {
                         <li key={tag}>{tag}</li>
                       ))}
                     </ul>
-                  </Card>
-                ))}
+                  </div>
+                </Card>
+              ))}
             </div>
           </div>
         </section>
@@ -422,26 +677,15 @@ export default function App() {
         {/* ── STACK ── */}
         <section className="section" id="s-stack" aria-labelledby="stack">
           <div className="container reveal">
-            <SectionHead id="stack" index="04" title={t.skills.title} intro={t.skills.intro} />
-            <div className="stack">
-              {t.skills.groups.map((g) => (
-                <Card key={g.name} as="div" className="stack__group">
-                  <h3>{g.name}</h3>
-                  <ul className="chips">
-                    {g.items.map((s) => (
-                      <li key={s}>{s}</li>
-                    ))}
-                  </ul>
-                </Card>
-              ))}
-            </div>
+            <SectionHead id="stack" index="04" file="stack.json" title={t.skills.title} intro={t.skills.intro} />
+            <StackJson groups={t.skills.groups} />
           </div>
         </section>
 
         {/* ── FORMACIÓN + IDIOMAS ── */}
         <section className="section" id="s-formacion" aria-labelledby="formacion">
           <div className="container reveal">
-            <SectionHead id="formacion" index="05" title={t.education.title} />
+            <SectionHead id="formacion" index="05" file={lang === 'es' ? 'formacion.md' : 'education.md'} title={t.education.title} />
             <div className="education">
               <ul className="edu">
                 {t.education.items.map((e) => (
@@ -484,31 +728,35 @@ export default function App() {
         {/* ── CONTACTO ── */}
         <section className="section contact" id="s-contacto" aria-labelledby="contacto">
           <div className="container reveal">
-            <Card as="div" className="contact__card">
-              <p className="contact__eyebrow">{t.contactSection.eyebrow}</p>
-              <h2 id="contacto" className="contact__title">
-                <span className="gradient-text">{t.contactSection.title}</span>
-              </h2>
-              <p className="contact__text">{t.contactSection.text}</p>
-              <p className="contact__email">
-                <a href={`mailto:${contact.email}`}>{contact.email}</a>
-              </p>
-              <div className="contact__actions">
-                <a className="btn btn--primary" href={`mailto:${contact.email}`}>
-                  <Icon name="mail" />
-                  {t.contactSection.emailCta}
-                </a>
-                <button type="button" className="btn btn--ghost" onClick={copyEmail} aria-live="polite">
-                  <Icon name={copied ? 'check' : 'copy'} />
-                  {copied ? t.contactSection.copied : t.contactSection.copy}
-                </button>
-                <a className="btn btn--ghost" href={contact.linkedin} target="_blank" rel="noopener noreferrer">
-                  <Icon name="linkedin" />
-                  {t.contactSection.linkedinCta}
-                  <span className="sr-only">{newTab}</span>
-                </a>
+            <div className="contact__grid">
+              <div className="contact__intro">
+                <p className="mono-label">
+                  <span className="accent">06</span> // {t.contactSection.eyebrow.toLowerCase()}
+                </p>
+                <h2 id="contacto" className="contact__title">
+                  <span className="gradient-text">{t.contactSection.title}</span>
+                </h2>
+                <p className="contact__text">{t.contactSection.text}</p>
+                <ul className="contact__links">
+                  <li>
+                    <a href={`mailto:${contact.email}`}>
+                      <Icon name="mail" /> {contact.email}
+                    </a>
+                    <button type="button" className="copy-btn" onClick={copyEmail} aria-live="polite">
+                      <Icon name={copied ? 'check' : 'copy'} />
+                      <span>{copied ? t.contactSection.copied : t.contactSection.copy}</span>
+                    </button>
+                  </li>
+                  <li>
+                    <a href={contact.linkedin} target="_blank" rel="noopener noreferrer">
+                      <Icon name="linkedin" /> {contact.linkedinLabel}
+                      <span className="sr-only">{newTab}</span>
+                    </a>
+                  </li>
+                </ul>
               </div>
-            </Card>
+              <ContactForm t={t.contactSection.form} />
+            </div>
           </div>
         </section>
       </main>
