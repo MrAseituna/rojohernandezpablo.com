@@ -8,7 +8,7 @@ export type Lang = 'es' | 'en'
 
 // Clave pública de Web3Forms (https://web3forms.com): reenvía los mensajes del formulario al email.
 // Vacía = el formulario abre el cliente de correo como alternativa.
-export const WEB3FORMS_KEY = ''
+export const WEB3FORMS_KEY = '3349e371-f6bf-4206-87d8-cbe7a6566511'
 
 export const contact = {
   email: 'rojohernandezpablo@gmail.com',
